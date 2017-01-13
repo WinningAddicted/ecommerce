@@ -16,7 +16,7 @@ router.use(function(req, res, next) {
     // verifies secret and checks exp
     jwt.verify(token, 'wingify', function(err, decoded) {      
       if (err) {
-        return res.json({ success: false, message: 'Failed to authenticate token.' });    
+        return res.json({ success: false, message: 'Failed to authenticate token.' , response_code: -1 });    
       } else {
         // if everything is good, save to request for use in other routes
         req.decoded = decoded;   
@@ -45,10 +45,10 @@ return res.status(403).send({
 });
 
 router.add = function(req, callback) {
-	var password = req.body.password || req.body.password
-	var firstName = req.body.firstName || req.body.firstName
-	var lastName = req.body.lastName || req.body.lastName
-	var username = req.body.username || req.body.username
+	var password = req.body.password || req.query.password
+	var firstName = req.body.firstName || req.query.firstName
+	var lastName = req.body.lastName || req.query.lastName
+	var username = req.body.username || req.query.username
 	console.log(password)
 	bcrypt.hash(password, saltRounds, function(err, hash) {
 		if(err){

@@ -18,7 +18,7 @@ router.use(function(req, res, next) {
     // verifies secret and checks exp
     jwt.verify(token, 'wingify', function(err, decoded) {      
       if (err) {
-        return res.json({ success: false, message: 'Failed to authenticate token.' });    
+        return res.json({ success: false, message: 'Failed to authenticate token.', response_code: -1 });    
       } else {
         // if everything is good, save to request for use in other routes
         req.decoded = decoded;   
@@ -48,12 +48,17 @@ return res.status(403).send({
 
 router.add = function(req, callback) {
 
-	db.query('SELECT id FROM brands WHERE name = ?', [req.body.brand] , function(err, rows) {
+	var brand = req.body.brand || req.query.brand
+	var category = req.body.category  || req.query.category
+	var name = req.body.name || req.query.name
+	var price = req.body.price || req.query.price
+	db.query('SELECT id FROM brands WHERE brand = ?', [brand] , function(err, rows) {
 			if(err) {
 				var response = {error : true}
 				response.error = true;
 				response.message = "Failed to get brands";
 				response.response_code = -1
+				response.err = err
 				debugger
 				callback(response)
 				return
@@ -62,13 +67,13 @@ router.add = function(req, callback) {
 					var response = {error : false}
 					response.error = true;
 					response.message = "Brand Doesn't Exist. Please Register Brand";
-					response.response_code = 0
+					response.response_code = 2
 					callback(response)
 					return
 				}
 				else{
 					var brand = rows[0].id
-					db.query('SELECT id FROM categories WHERE category = ?', [req.body.category] , function(err, rows) {
+					db.query('SELECT id FROM categories WHERE category = ?', [category] , function(err, rows) {
 							if(err) {
 								var response = {error : true}
 								response.error = true;
@@ -81,13 +86,13 @@ router.add = function(req, callback) {
 									var response = {error : false}
 									response.error = true;
 									response.message = "Category Doesn't Exist. Please Register Category";
-									response.response_code = 0
+									response.response_code = 3
 									callback(response)
 									return
 								}
 								else{
 									var category = rows[0].id
-									db.query('INSERT INTO products(name, brand, category,price) VALUES(?,?,?,?)',[req.body.name,brand,category,req.body.price],function(err,rows){
+									db.query('INSERT INTO products(name, brand, category,price) VALUES(?,?,?,?)',[name,brand,category,price],function(err,rows){
 										if(err){
 											var response = {error : true}
 											response.error = true;
@@ -115,6 +120,8 @@ router.add = function(req, callback) {
 }
 
 router.delete = function(req, callback) {
+
+	var id = req.body.id || req.query.id
 
 	db.query('DELETE FROM products WHERE id = ?', [req.body.id] , function(err, rows) {
 			if(err) {
@@ -168,12 +175,15 @@ router.search = function(req, callback) {
 }
 
 router.edit = function(req, callback) {
-	var fields = JSON.parse(req.body.fields)
+	var id = req.body.id || req.query.id
+	var fields = req.body.fields || req.query.fields
+	fields = JSON.parse(fields) 
 	var keys = Object.keys(fields)
+	console.log('keys : ' + keys, keys.length, fields)
 	if (keys.length == 0){
 		var response = {error : false}
 		response.message = "Nothing to update";
-		response.response_code = 1
+		response.response_code = 2
 		callback(response)
 		return
 	}
@@ -209,7 +219,7 @@ router.edit = function(req, callback) {
 							sql +=  key + ' = "' + rows[0].id + '",'
 							if(iterations == 0){
 								sql = sql.slice(0,-1)
-								sql += ' WHERE id = ' + req.body.id
+								sql += ' WHERE id = ' + id
 								console.log(sql)
 								db.query(sql,[],function(err,rows){
 									if(err){
@@ -239,7 +249,7 @@ router.edit = function(req, callback) {
 				sql += key + ' = "' + fields[key] + '",'
 				if(iterations == 0){
 					sql = sql.slice(0,-1)
-					sql += ' WHERE id = ' + req.body.id
+					sql += ' WHERE id = ' + id
 					console.log(sql)
 					db.query(sql,[],function(err,rows){
 						if(err){
