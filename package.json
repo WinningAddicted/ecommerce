@@ -4,15 +4,18 @@
   "description": "new rock solid backend for Wingify",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^1.0.2",
     "body-parser": "^1.15.2",
+    "chai": "^3.5.0",
     "express": "^4.14.0",
     "jsonwebtoken": "^7.2.1",
-    "mysql": "^2.12.0"
+    "mocha": "^3.2.0",
+    "mysql": "^2.12.0",
+    "request": "^2.79.0"
   }
 }

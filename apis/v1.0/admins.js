@@ -9,7 +9,7 @@ router.use(function(req, res, next) {
 
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
-
+  console.log(token)
   // decode token
   if (token) {
 
@@ -45,8 +45,11 @@ return res.status(403).send({
 });
 
 router.add = function(req, callback) {
-	var password = req.body.password
-
+	var password = req.body.password || req.body.password
+	var firstName = req.body.firstName || req.body.firstName
+	var lastName = req.body.lastName || req.body.lastName
+	var username = req.body.username || req.body.username
+	console.log(password)
 	bcrypt.hash(password, saltRounds, function(err, hash) {
 		if(err){
 			var response = {error : true}
@@ -58,7 +61,7 @@ router.add = function(req, callback) {
 		}
 		else{
 			password = hash
-			db.query('INSERT INTO users(firstName, lastName, username,password,role) VALUES(?,?,?,?,?)', [req.body.firstName, req.body.lastName, req.body.username, password, 1] , function(err, rows) {
+			db.query('INSERT INTO users(firstName, lastName, username,password,role) VALUES(?,?,?,?,?)', [firstName, lastName, username, password, 1] , function(err, rows) {
 					if(err) {
 						var response = {error : true}
 						response.error = true;

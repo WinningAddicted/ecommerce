@@ -14,8 +14,11 @@ return res.status(403).send({
 });
 
 router.login = function(req, callback) {
-
-	db.query('SELECT username,password FROM users WHERE username = ?', [req.body.username] , function(err, rows) {
+	console.log(req.body)
+	console.log(req.query)
+	var username = req.body.username || req.query.username
+	var password = req.body.password || req.query.password
+	db.query('SELECT username,password FROM users WHERE username = ?', [username] , function(err, rows) {
 				if(err) {
 					var response = {error : true}
 					response.err = err;
@@ -33,7 +36,7 @@ router.login = function(req, callback) {
 						return		
 					}
 					else{
-						bcrypt.compare(req.body.password, rows[0].password, function(err, res) {
+						bcrypt.compare(password, rows[0].password, function(err, res) {
 							if(res){
 								var user = {id : rows[0].id}
 								var token = jwt.sign(user, 'wingify', {
@@ -43,6 +46,7 @@ router.login = function(req, callback) {
 								response.message = "Returning Token";
 								response.response_code = 1
 								response.token = token
+								console.log(response)
 								callback(response)
 								return	
 							}
