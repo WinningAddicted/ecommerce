@@ -2,7 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var jwt = require('jsonwebtoken');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 
 //Files
 var db = require('../../databaseConnection');
